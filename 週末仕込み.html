@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>週末仕込み — 日曜3時間 / 平日10分</title>
+<style>
+:root{
+  --ink:#182430;
+  --ink2:#5a6874;
+  --ink3:#8a949c;
+  --paper:#f3f4f1;
+  --card:#ffffff;
+  --ai:#1d4e79;
+  --ai-soft:#e7eef4;
+  --take:#6d8f5b;
+  --take-soft:#ebf0e7;
+  --kohaku:#b0761c;
+  --kohaku-soft:#f7efe0;
+  --rule:#dbded8;
+  --font-d:"Yu Mincho",YuMincho,"Hiragino Mincho ProN","MS PMincho",serif;
+  --font-b:"Yu Gothic",YuGothic,"Hiragino Kaku Gothic ProN","Noto Sans JP","Helvetica Neue",sans-serif;
+  --font-m:"SFMono-Regular",Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:var(--font-b);font-size:15px;line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  padding:0 0 80px;
+}
+.wrap{max-width:940px;margin:0 auto;padding:0 20px}
+
+/* ---- header ---- */
+header{padding:44px 0 30px;border-bottom:1px solid var(--rule);margin-bottom:38px}
+.eyebrow{font-family:var(--font-m);font-size:11px;letter-spacing:.22em;color:var(--ink3);text-transform:uppercase}
+h1{font-family:var(--font-d);font-size:40px;font-weight:600;letter-spacing:.04em;line-height:1.25;margin:10px 0 6px}
+h1 .thin{color:var(--ai)}
+.sub{color:var(--ink2);font-size:14px}
+.headrow{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+button.primary{
+  font-family:var(--font-b);font-size:14px;font-weight:600;
+  background:var(--ai);color:#fff;border:none;border-radius:2px;
+  padding:13px 24px;cursor:pointer;letter-spacing:.06em;
+  transition:background .15s;
+}
+button.primary:hover{background:#153a5b}
+button.ghost{
+  font-family:var(--font-b);font-size:13px;background:none;color:var(--ai);
+  border:1px solid var(--rule);border-radius:2px;padding:8px 14px;cursor:pointer;
+}
+button.ghost:hover{border-color:var(--ai)}
+button:focus-visible,input:focus-visible,label:focus-within{outline:2px solid var(--kohaku);outline-offset:2px}
+
+/* ---- section ---- */
+section{margin-bottom:56px}
+.shead{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+.snum{font-family:var(--font-m);font-size:11px;color:var(--ink3);letter-spacing:.1em}
+h2{font-family:var(--font-d);font-size:25px;font-weight:600;letter-spacing:.05em}
+.snote{font-size:13px;color:var(--ink2);margin-bottom:22px}
+
+/* ---- weekday cards ---- */
+.days{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.day{background:var(--card);border:1px solid var(--rule);border-top:3px solid var(--kohaku);padding:16px 14px;display:flex;flex-direction:column}
+.day .dow{font-family:var(--font-d);font-size:17px;letter-spacing:.14em;margin-bottom:12px}
+.day .main{display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:14px;font-weight:600;line-height:1.5;margin-bottom:8px}
+.fav{cursor:pointer;font-size:14px;color:var(--ink3);user-select:none;flex:0 0 auto}
+.fav.on{color:var(--kohaku)}
+.fav.sm{font-size:11px;margin-left:3px}
+.day .act{
+  font-family:var(--font-m);font-size:11px;color:var(--kohaku);
+  background:var(--kohaku-soft);display:inline-block;padding:3px 7px;align-self:flex-start;margin-bottom:12px
+}
+.day .side{font-size:12px;color:var(--ink2);border-top:1px dotted var(--rule);padding-top:9px;margin-top:auto}
+.usebadge{
+  font-size:11px;color:var(--take);background:var(--take-soft);
+  display:inline-block;padding:2px 7px;border-radius:10px;margin-bottom:8px;align-self:flex-start
+}
+.srclink{font-family:var(--font-b);font-size:11.5px;color:var(--ai);text-decoration:none;border-bottom:1px dotted var(--ai);margin-bottom:10px;align-self:flex-start}
+.srclink:hover{border-bottom-style:solid}
+.srclink.sm{margin:0 0 0 4px;border-bottom:none;font-size:11px}
+.swipehint{display:none;font-size:11px;color:var(--ink3);margin-bottom:8px}
+
+/* ---- timeline (signature) ---- */
+.tl{background:var(--card);border:1px solid var(--rule);padding:24px 22px 18px;overflow-x:auto}
+.tlinner{min-width:640px}
+.ruler{position:relative;height:22px;margin-left:96px;border-bottom:1px solid var(--rule)}
+.tick{position:absolute;top:0;font-family:var(--font-m);font-size:10px;color:var(--ink3);transform:translateX(-50%)}
+.tick::after{content:"";position:absolute;left:50%;top:16px;width:1px;height:6px;background:var(--rule)}
+.lane{display:flex;align-items:stretch;margin-top:12px}
+.lanelabel{
+  width:96px;flex:0 0 96px;font-size:12px;color:var(--ink2);
+  padding-right:12px;text-align:right;line-height:1.4;padding-top:6px
+}
+.lanelabel b{display:block;font-family:var(--font-d);font-size:14px;color:var(--ink);letter-spacing:.06em}
+.track{position:relative;flex:1;height:46px;background:
+  repeating-linear-gradient(to right,transparent,transparent calc(16.666% - 1px),var(--rule) calc(16.666% - 1px),var(--rule) 16.666%)}
+.blk{
+  position:absolute;top:3px;height:40px;border-radius:2px;
+  padding:5px 8px;font-size:11.5px;line-height:1.35;overflow:hidden;
+  border-left:3px solid;
+}
+.blk b{display:block;font-size:12px;font-weight:600}
+.blk .m{font-family:var(--font-m);font-size:10px;opacity:.7}
+.b-nabe{background:var(--ai-soft);border-color:var(--ai);color:#123a5c}
+.b-pan{background:var(--take-soft);border-color:var(--take);color:#3d5a30}
+.b-hand{background:#f0eee9;border-color:#9a8f7d;color:#4a4238}
+.tlfoot{display:flex;justify-content:space-between;font-size:12px;color:var(--ink2);margin-top:16px;padding-top:12px;border-top:1px solid var(--rule)}
+.tlfoot b{font-family:var(--font-m);color:var(--ai);font-size:14px}
+
+/* ---- shopping ---- */
+.shop{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.cat{background:var(--card);border:1px solid var(--rule);padding:15px 16px}
+.cat h3{font-family:var(--font-d);font-size:15px;font-weight:600;letter-spacing:.1em;color:var(--ai);
+  border-bottom:1px solid var(--rule);padding-bottom:7px;margin-bottom:9px}
+.cat label{display:flex;gap:8px;align-items:flex-start;font-size:13px;padding:3px 0;cursor:pointer}
+.cat input{margin-top:5px;accent-color:var(--ai);flex:0 0 auto}
+.cat .amt{color:var(--ink3);font-size:11.5px;margin-left:auto;font-family:var(--font-m);padding-left:8px}
+.cat input:checked + span{text-decoration:line-through;color:var(--ink3)}
+
+/* ---- pantry ---- */
+.pantry{background:var(--card);border:1px solid var(--rule);padding:18px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.chip{font-size:12.5px;border:1px solid var(--rule);border-radius:14px;padding:4px 10px;cursor:pointer;background:#fff;color:var(--ink2)}
+.chip.on{background:var(--ai);border-color:var(--ai);color:#fff}
+.addrow{display:flex;gap:8px}
+.addrow input{flex:1;font-family:var(--font-b);font-size:13px;padding:8px 10px;border:1px solid var(--rule);border-radius:2px}
+
+.hint{font-size:12px;color:var(--ink3);margin-top:10px}
+
+@media(max-width:760px){
+  h1{font-size:28px}
+  .headrow{flex-direction:column;align-items:stretch}
+  .headrow>div:last-child{display:flex;gap:8px}
+  .headrow>div:last-child button{flex:1}
+  button.primary,button.ghost{padding:12px 16px;font-size:14px}
+  .swipehint{display:block}
+  .days{
+    display:flex;overflow-x:auto;gap:10px;scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;margin:0 -14px;padding:0 14px 6px;
+  }
+  .day{flex:0 0 82%;scroll-snap-align:start}
+  .tl{-webkit-overflow-scrolling:touch}
+  .shop{grid-template-columns:1fr}
+  .cat label{padding:7px 0}
+  .cat input{width:18px;height:18px}
+  .chip{padding:7px 12px;font-size:13px}
+  .addrow input{padding:11px 12px;font-size:16px}
+  .wrap{padding:0 14px}
+}
+@media print{
+  body{background:#fff}
+  button{display:none}
+  section{break-inside:avoid}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="headrow">
+    <div>
+      <div class="eyebrow">one person &middot; weekly prep</div>
+      <h1>週末仕込み<span class="thin">。</span></h1>
+      <div class="sub">日曜に3時間で10品。平日は最後の10分だけ。</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="ghost" onclick="window.print()">印刷</button>
+      <button class="primary" id="gen">今週の献立を組む</button>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="shead"><span class="snum">01</span><h2>平日の10分</h2></div>
+  <div class="snote">主菜は日曜に下味冷凍済み。前夜に冷蔵庫へ移して、当日は最後の工程だけ。</div>
+  <div class="swipehint">← → 横にスワイプで他の曜日</div>
+  <div class="days" id="days"></div>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">02</span><h2>日曜の3時間</h2></div>
+  <div class="snote">3つの持ち場を同時に動かす前提の進行表。左から順に、手が空いた列の次の作業へ移ります。</div>
+  <div class="tl"><div class="tlinner" id="tl"></div></div>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">03</span><h2>買い物リスト</h2></div>
+  <div class="snote">売り場を回る順に並べています。在庫にある調味料は除外済み。今週選ばれたレシピで在庫にない調味料は「調味料（不足分）」にまとめて表示します。</div>
+  <div class="shop" id="shop"></div>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">04</span><h2>調味料の在庫</h2></div>
+  <div class="snote">持っているものを選んでおくと、買い物リストから外れるほか、それで作れるレシピが選ばれやすくなります。</div>
+  <div class="pantry">
+    <div class="chips" id="chips"></div>
+    <div class="addrow">
+      <input id="newitem" placeholder="調味料を追加（例：ゆず胡椒）">
+      <button class="ghost" id="add">追加</button>
+    </div>
+    <div class="hint">選択中＝家にある。クリックで切り替わります。</div>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">05</span><h2>今週買った食材</h2></div>
+  <div class="snote">冷蔵庫にある食材を入力しておくと、それを使うレシピを優先して献立を組みます。次回「今週の献立を組む」を押したときに反映されます。読点・カンマ・改行区切りで複数まとめて入力できます。</div>
+  <div class="pantry">
+    <div class="chips" id="boughtchips"></div>
+    <div class="addrow">
+      <input id="boughtinput" placeholder="買った食材を入力（例：鶏もも肉、にんじん）">
+      <button class="ghost" id="boughtadd">追加</button>
+    </div>
+    <div class="hint">クリックで削除。買い物リストのチェック消し込みとは別の一覧です。</div>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">06</span><h2>レシピ参照元</h2></div>
+  <div class="snote">選んだ参照元で各レシピを検索できるリンクを、平日カードに表示します（実際のレシピは各サイトでご確認ください）。</div>
+  <div class="pantry">
+    <div class="chips" id="srcchips"></div>
+    <div class="hint">選択中＝検索に含める。クリックで切り替わります。</div>
+  </div>
+  <div class="pantry" style="margin-top:12px">
+    <div class="chips" id="customsrcchips"></div>
+    <div class="addrow">
+      <input id="srcinput" placeholder="お気に入りの料理研究家・サイトを追加（例：みきママ）">
+      <button class="ghost" id="srcadd">追加</button>
+    </div>
+    <div class="hint">追加したものは常に検索に含まれます。クリックで削除。</div>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">07</span><h2>お気に入りレシピ</h2></div>
+  <div class="snote">★を付けたレシピは「直近2週は避ける」ルールより優先され、毎週の献立に再登場しやすくなります。曜日カードの☆から追加・解除できます。</div>
+  <div class="pantry">
+    <div class="chips" id="favchips"></div>
+    <div class="hint">クリックで解除。</div>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ---------- 保存（ローカルで開いたときは保存され、プレビューでは一時的） ---------- */
+const store = (()=>{
+  let mem={};
+  try{ localStorage.setItem('_t','1'); localStorage.removeItem('_t');
+    return {get:k=>localStorage.getItem(k), set:(k,v)=>localStorage.setItem(k,v)};
+  }catch(e){ return {get:k=>mem[k]??null, set:(k,v)=>{mem[k]=v}}; }
+})();
+
+/* ---------- データ ---------- */
+// 主菜：日曜は下味冷凍まで。平日は act の工程だけ（10分以内）
+const MAINS=[
+ {n:"鶏ももの味噌漬け",p:"鶏",act:"焼く",min:8,ing:[["鶏もも肉","2枚","肉魚"]],season:["味噌","みりん","酒"]},
+ {n:"鶏むねの塩麹蒸し",p:"鶏",act:"蒸す",min:10,ing:[["鶏むね肉","2枚","肉魚"]],season:["塩麹"]},
+ {n:"鶏ももの甘辛だれ",p:"鶏",act:"焼く",min:8,ing:[["鶏もも肉","2枚","肉魚"]],season:["醤油","みりん","砂糖"]},
+ {n:"鶏ももの ねぎ塩だれ",p:"鶏",act:"焼く",min:8,ing:[["鶏もも肉","2枚","肉魚"],["長ねぎ","1本","野菜"]],season:["塩","ごま油"]},
+ {n:"鶏むねのカレーヨーグルト漬け",p:"鶏",act:"焼く",min:10,ing:[["鶏むね肉","2枚","肉魚"],["プレーンヨーグルト","100g","卵乳"]],season:["カレー粉"]},
+ {n:"豚こまの生姜だれ",p:"豚",act:"炒める",min:7,ing:[["豚こま切れ肉","300g","肉魚"],["玉ねぎ","1個","野菜"]],season:["おろし生姜","醤油"]},
+ {n:"豚こまの味噌だれ",p:"豚",act:"炒める",min:7,ing:[["豚こま切れ肉","300g","肉魚"],["キャベツ","1/4玉","野菜"]],season:["味噌","みりん"]},
+ {n:"豚ロースの塩レモン",p:"豚",act:"焼く",min:7,ing:[["豚ロース肉","4枚","肉魚"],["レモン","1個","野菜"]],season:["塩"]},
+ {n:"鮭の西京漬け",p:"魚",act:"焼く",min:8,ing:[["生鮭","4切れ","肉魚"]],season:["味噌","みりん"]},
+ {n:"鮭のみりん醤油漬け",p:"魚",act:"焼く",min:8,ing:[["生鮭","4切れ","肉魚"]],season:["みりん","醤油"]},
+ {n:"ぶりの照り焼き漬け",p:"魚",act:"焼く",min:8,ing:[["ぶり","4切れ","肉魚"]],season:["醤油","みりん"]},
+ {n:"たらの酒塩蒸し",p:"魚",act:"蒸す",min:10,ing:[["生たら","4切れ","肉魚"],["長ねぎ","1本","野菜"]],season:["酒","塩"]},
+ {n:"牛こまのすき焼き風",p:"牛",act:"炒める",min:7,ing:[["牛こま切れ肉","300g","肉魚"],["玉ねぎ","1個","野菜"]],season:["醤油","みりん","砂糖"]}
+];
+
+// 副菜：作り置き。m=調理法（持ち場の割り当てに使う）, min=所要時間
+const SIDES=[
+ {n:"ほうれん草の胡麻和え",m:"茹",min:12,ing:[["ほうれん草","1束","野菜"]],season:["白ごま","醤油"]},
+ {n:"ひじきの煮物",m:"煮",min:25,ing:[["乾燥ひじき","20g","乾物"],["にんじん","1本","野菜"],["油揚げ","2枚","大豆"]],season:["醤油","みりん","砂糖","和風だし"]},
+ {n:"きんぴらごぼう",m:"炒",min:15,ing:[["ごぼう","1本","野菜"],["にんじん","1本","野菜"]],season:["醤油","みりん","ごま油"]},
+ {n:"切り干し大根の煮物",m:"煮",min:25,ing:[["切り干し大根","40g","乾物"],["にんじん","1本","野菜"],["油揚げ","2枚","大豆"]],season:["醤油","みりん","和風だし"]},
+ {n:"ブロッコリーのおかか和え",m:"茹",min:12,ing:[["ブロッコリー","1株","野菜"]],season:["かつお節","醤油"]},
+ {n:"かぼちゃの煮物",m:"煮",min:20,ing:[["かぼちゃ","1/4個","野菜"]],season:["醤油","みりん","砂糖"]},
+ {n:"小松菜と油揚げの煮浸し",m:"煮",min:15,ing:[["小松菜","1束","野菜"],["油揚げ","2枚","大豆"]],season:["醤油","和風だし"]},
+ {n:"にんじんしりしり",m:"炒",min:15,ing:[["にんじん","2本","野菜"],["卵","1個","卵乳"]],season:["ごま油","白だし"]},
+ {n:"れんこんの甘酢",m:"茹",min:15,ing:[["れんこん","200g","野菜"]],season:["酢","砂糖"]},
+ {n:"キャベツの塩昆布和え",m:"和",min:8,ing:[["キャベツ","1/4玉","野菜"],["塩昆布","20g","乾物"]],season:["ごま油"]},
+ {n:"なすの煮浸し",m:"煮",min:15,ing:[["なす","4本","野菜"]],season:["醤油","和風だし"]},
+ {n:"いんげんの胡麻和え",m:"茹",min:12,ing:[["いんげん","150g","野菜"]],season:["白ごま","醤油"]},
+ {n:"大根の甘酢漬け",m:"和",min:10,ing:[["大根","1/3本","野菜"]],season:["酢","砂糖"]},
+ {n:"ピーマンのじゃこ炒め",m:"炒",min:12,ing:[["ピーマン","5個","野菜"],["ちりめんじゃこ","30g","乾物"]],season:["ごま油","醤油"]}
+];
+
+const TAMAGO=[
+ {n:"醤油の味玉",ing:[["卵","6個","卵乳"]],season:["醤油","みりん"]},
+ {n:"白だしの味玉",ing:[["卵","6個","卵乳"]],season:["白だし"]},
+ {n:"味噌漬け玉子",ing:[["卵","6個","卵乳"]],season:["味噌"]},
+ {n:"カレー風味の味玉",ing:[["卵","6個","卵乳"]],season:["カレー粉","醤油"]}
+];
+
+const MISO=[
+ {n:"わかめと豆腐の味噌玉",ing:[["乾燥わかめ","10g","乾物"],["絹豆腐","1丁","大豆"]],season:["味噌","和風だし"]},
+ {n:"なめこの味噌玉",ing:[["なめこ","2袋","野菜"]],season:["味噌","和風だし"]},
+ {n:"油揚げとねぎの味噌玉",ing:[["油揚げ","2枚","大豆"],["長ねぎ","1本","野菜"]],season:["味噌","和風だし"]},
+ {n:"じゃがいもと玉ねぎの味噌玉",ing:[["じゃがいも","2個","野菜"],["玉ねぎ","1個","野菜"]],season:["味噌","和風だし"]}
+];
+
+const DEFAULT_PANTRY=["醤油","味噌","みりん","酒","砂糖","塩","酢","ごま油","サラダ油","白だし","和風だし","鶏がらスープの素","塩麹","おろし生姜","おろしにんにく","白ごま","カレー粉","片栗粉","かつお節","昆布","七味唐辛子"];
+const CATS=[["野菜","青果"],["肉魚","鮮魚・精肉"],["大豆","豆腐・大豆製品"],["乾物","乾物・海藻"],["卵乳","卵・乳製品"],["調味料","調味料（不足分）"]];
+const DOW=["月","火","水","木","金"];
+
+// レシピ参照元。実際のページURLは推測せず、選んだ元での検索リンクを組み立てる。
+const DEFAULT_SOURCES=["白ごはん.com","長谷川あかり","ワタナベマキ","土井善晴","NHKきょうの料理","クラシル","デリッシュキッチン"];
+
+/* ---------- 状態 ---------- */
+let pantry = JSON.parse(store.get("pantry") || "null") || DEFAULT_PANTRY.slice();
+let history = JSON.parse(store.get("history") || "[]");   // 直近2週の料理名
+let week = JSON.parse(store.get("week") || "null");
+let boughtFood = JSON.parse(store.get("bought") || "[]");         // 今週買った食材
+let selectedSources = JSON.parse(store.get("sources") || "null") || DEFAULT_SOURCES.slice();
+let customSources = JSON.parse(store.get("customSources") || "[]");  // ユーザーが追加した参照元。常に検索に含める
+let favorites = JSON.parse(store.get("favorites") || "[]");          // お気に入りレシピ名
+
+/* ---------- レシピ検索リンク・スコアリング ---------- */
+function searchUrl(name){
+  const labels=[...DEFAULT_SOURCES.filter(s=>selectedSources.includes(s)),...customSources];
+  const q = labels.length ? `${name} レシピ (${labels.join(" OR ")})` : `${name} レシピ`;
+  return "https://www.google.com/search?q="+encodeURIComponent(q);
+}
+function matchScore(ing){
+  if(!boughtFood.length) return {score:0,matched:[]};
+  const matched=[];
+  ing.forEach(([n])=>{
+    if(boughtFood.some(b=>b && (n.includes(b)||b.includes(n)))) matched.push(n);
+  });
+  return {score:matched.length,matched};
+}
+function missingSeasons(season){
+  return (season||[]).filter(s=>!pantry.includes(s));
+}
+// 買った食材を使う・在庫の調味料で作れる・お気に入り、の順で優先度を上げる
+function recipeScore(r){
+  const bought=matchScore(r.ing).score;
+  const season=r.season||[];
+  const have=season.length-missingSeasons(season).length;
+  const fav=favorites.includes(r.n)?1000:0;
+  return fav + bought*3 + have - missingSeasons(season).length;
+}
+
+/* ---------- 献立を組む ---------- */
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
+
+function pickMains(recent){
+  let pool=shuffle(MAINS);
+  // お気に入りは直近使用でも除外しない＝毎週でも再登場できる
+  let fresh=pool.filter(m=>favorites.includes(m.n)||!recent.includes(m.n));
+  if(fresh.length<5) fresh=pool;                    // 選択肢が尽きたら制限を外す
+  fresh=fresh.slice().sort((a,b)=>recipeScore(b)-recipeScore(a)); // お気に入り＞買った食材＞在庫調味料の順で優先
+  const out=[],count={};
+  for(const m of fresh){
+    if(out.length>=5) break;
+    if((count[m.p]||0)>=2) continue;                // 同じ主材料は週2回まで
+    out.push(m); count[m.p]=(count[m.p]||0)+1;
+  }
+  for(const m of fresh){ if(out.length>=5) break; if(!out.includes(m)) out.push(m); }
+  return out;
+}
+function pickSides(recent){
+  let pool=shuffle(SIDES);
+  let fresh=pool.filter(s=>favorites.includes(s.n)||!recent.includes(s.n));
+  if(fresh.length<4) fresh=pool;
+  fresh=fresh.slice().sort((a,b)=>recipeScore(b)-recipeScore(a));
+  const out=[],used=[];
+  for(const s of fresh){                            // 調理法をばらけさせる
+    if(out.length>=4) break;
+    if(used.filter(m=>m===s.m).length>=2) continue;
+    out.push(s); used.push(s.m);
+  }
+  for(const s of fresh){ if(out.length>=4) break; if(!out.includes(s)) out.push(s); }
+  return out;
+}
+function pickTamago(){
+  const favs=TAMAGO.filter(t=>favorites.includes(t.n));
+  return favs.length ? shuffle(favs)[0] : shuffle(TAMAGO)[0];
+}
+function pickMiso(){
+  const favs=MISO.filter(t=>favorites.includes(t.n));
+  return favs.length ? shuffle(favs)[0] : shuffle(MISO)[0];
+}
+
+function build(){
+  const recent=history.flat();
+  const mains=pickMains(recent), sides=pickSides(recent);
+  const tamago=pickTamago(), miso=pickMiso();
+  week={mains,sides,tamago,miso,checked:[]};
+  history.push([...mains.map(m=>m.n),...sides.map(s=>s.n)]);
+  if(history.length>2) history.shift();
+  store.set("week",JSON.stringify(week));
+  store.set("history",JSON.stringify(history));
+  render();
+}
+
+/* ---------- 日曜3時間の進行表 ---------- */
+function timeline(){
+  // 3つの持ち場に作業を積む。各列は上から順に着手。
+  const lanes=[
+    {label:"鍋・ゆで",sub:"コンロ 1〜2口",cls:"b-nabe",tasks:[]},
+    {label:"フライパン",sub:"コンロ 3口目",cls:"b-pan",tasks:[]},
+    {label:"手作業",sub:"火を使わない",cls:"b-hand",tasks:[]}
+  ];
+  lanes[0].tasks.push({n:"卵を茹でる",d:12},{n:"→ "+week.tamago.n+" のたれに漬ける",d:6});
+  week.sides.filter(s=>s.m==="煮"||s.m==="茹").forEach(s=>lanes[0].tasks.push({n:s.n,d:s.min}));
+  week.sides.filter(s=>s.m==="炒").forEach(s=>lanes[1].tasks.push({n:s.n,d:s.min}));
+  if(lanes[1].tasks.length===0) lanes[1].tasks.push({n:"（空き）主菜の肉を先に切っておく",d:15});
+  lanes[2].tasks.push({n:"野菜をまとめて洗う・切る",d:20});
+  week.sides.filter(s=>s.m==="和").forEach(s=>lanes[2].tasks.push({n:s.n,d:s.min}));
+  lanes[2].tasks.push({n:"主菜5品を下味冷凍",d:30},{n:week.miso.n+" を5食分",d:10},{n:"保存容器に詰めてラベル",d:12});
+
+  const TOTAL=180;
+  let html='<div class="ruler">';
+  for(let t=0;t<=180;t+=30) html+=`<span class="tick" style="left:${t/TOTAL*100}%">${t===0?"開始":t+"分"}</span>`;
+  html+='</div>';
+
+  let latest=0;
+  lanes.forEach(L=>{
+    let t=0,blocks="";
+    L.tasks.forEach(k=>{
+      const w=k.d/TOTAL*100;
+      blocks+=`<div class="blk ${L.cls}" style="left:${t/TOTAL*100}%;width:calc(${w}% - 3px)" title="${k.n}（${k.d}分）">
+        <b>${k.n}</b><span class="m">${k.d}分</span></div>`;
+      t+=k.d;
+    });
+    latest=Math.max(latest,t);
+    html+=`<div class="lane"><div class="lanelabel"><b>${L.label}</b>${L.sub}</div><div class="track">${blocks}</div></div>`;
+  });
+
+  const over=latest>TOTAL;
+  html+=`<div class="tlfoot">
+    <span>いちばん長い列で <b>${latest}分</b>${over?"　— 3時間を超えています。副菜を1品減らすか、和え物に替えてください。":"　（3時間まで余裕 "+(TOTAL-latest)+"分）"}</span>
+    <span>主菜は下味冷凍のみ・加熱は平日</span></div>`;
+  return html;
+}
+
+/* ---------- 買い物リスト ---------- */
+function shopping(){
+  const dishes=[...week.mains,...week.sides,week.tamago,week.miso];
+  const all=dishes.flatMap(x=>x.ing);
+  const seasons=[...new Set(dishes.flatMap(x=>missingSeasons(x.season)))].map(n=>[n,"適量","調味料"]);
+  const map={};
+  [...all,...seasons].forEach(([n,a,c])=>{
+    if(pantry.includes(n)) return;
+    if(!map[c]) map[c]={};
+    map[c][n] ? map[c][n].push(a) : map[c][n]=[a];
+  });
+  let html="";
+  CATS.forEach(([key,label])=>{
+    if(!map[key]) return;
+    html+=`<div class="cat"><h3>${label}</h3>`;
+    Object.entries(map[key]).forEach(([n,amts])=>{
+      const id="c_"+n;
+      const on=week.checked.includes(n)?"checked":"";
+      html+=`<label><input type="checkbox" data-n="${n}" ${on}><span>${n}</span><span class="amt">${amts.join(" + ")}</span></label>`;
+    });
+    html+="</div>";
+  });
+  return html;
+}
+
+/* ---------- 描画 ---------- */
+function render(){
+  if(!week){ build(); return; }
+
+  document.getElementById("days").innerHTML = week.mains.map((m,i)=>{
+    const side=week.sides[i%4];
+    const used=matchScore(m.ing).matched;
+    return `
+    <div class="day">
+      <div class="dow">${DOW[i]}</div>
+      <div class="main">${m.n}<span class="fav ${favorites.includes(m.n)?"on":""}" data-n="${m.n}" title="お気に入り">${favorites.includes(m.n)?"★":"☆"}</span></div>
+      ${used.length?`<div class="usebadge">🛒 ${used.join("・")}を使用</div>`:""}
+      <div class="act">${m.act}だけ / ${m.min}分</div>
+      <a class="srclink" href="${searchUrl(m.n)}" target="_blank" rel="noopener">レシピを探す ↗</a>
+      <div class="side">副菜：${side.n}<a class="srclink sm" href="${searchUrl(side.n)}" target="_blank" rel="noopener" aria-label="副菜のレシピを探す">🔍</a><span class="fav sm ${favorites.includes(side.n)?"on":""}" data-n="${side.n}" title="お気に入り">${favorites.includes(side.n)?"★":"☆"}</span><br>
+      汁物：${week.miso.n.replace("の味噌玉","")}<a class="srclink sm" href="${searchUrl(week.miso.n)}" target="_blank" rel="noopener" aria-label="汁物のレシピを探す">🔍</a><span class="fav sm ${favorites.includes(week.miso.n)?"on":""}" data-n="${week.miso.n}" title="お気に入り">${favorites.includes(week.miso.n)?"★":"☆"}</span><br>
+      弁当：${week.tamago.n}<a class="srclink sm" href="${searchUrl(week.tamago.n)}" target="_blank" rel="noopener" aria-label="弁当のレシピを探す">🔍</a><span class="fav sm ${favorites.includes(week.tamago.n)?"on":""}" data-n="${week.tamago.n}" title="お気に入り">${favorites.includes(week.tamago.n)?"★":"☆"}</span></div>
+    </div>`;
+  }).join("");
+
+  document.getElementById("tl").innerHTML = timeline();
+  document.getElementById("shop").innerHTML = shopping();
+
+  document.querySelectorAll(".fav").forEach(el=>{
+    el.onclick=()=>{
+      const n=el.dataset.n;
+      favorites = favorites.includes(n) ? favorites.filter(x=>x!==n) : [...favorites,n];
+      store.set("favorites",JSON.stringify(favorites));
+      render();
+    };
+  });
+
+  document.querySelectorAll('.cat input').forEach(el=>{
+    el.onchange=()=>{
+      const n=el.dataset.n;
+      week.checked = el.checked ? [...week.checked,n] : week.checked.filter(x=>x!==n);
+      store.set("week",JSON.stringify(week));
+    };
+  });
+
+  document.getElementById("chips").innerHTML =
+    [...new Set([...DEFAULT_PANTRY,...pantry])].map(p=>
+      `<span class="chip ${pantry.includes(p)?"on":""}" data-p="${p}">${p}</span>`).join("");
+  document.querySelectorAll("#chips .chip").forEach(c=>{
+    c.onclick=()=>{
+      const p=c.dataset.p;
+      pantry = pantry.includes(p) ? pantry.filter(x=>x!==p) : [...pantry,p];
+      store.set("pantry",JSON.stringify(pantry));
+      render();
+    };
+  });
+
+  document.getElementById("boughtchips").innerHTML = boughtFood.length
+    ? boughtFood.map(p=>`<span class="chip on" data-p="${p}" title="クリックで削除">${p} ×</span>`).join("")
+    : `<span class="hint" style="margin:0">まだ入力されていません</span>`;
+  document.querySelectorAll("#boughtchips .chip").forEach(c=>{
+    c.onclick=()=>{
+      boughtFood = boughtFood.filter(x=>x!==c.dataset.p);
+      store.set("bought",JSON.stringify(boughtFood));
+      render();
+    };
+  });
+
+  document.getElementById("srcchips").innerHTML = DEFAULT_SOURCES.map(s=>
+    `<span class="chip ${selectedSources.includes(s)?"on":""}" data-s="${s}">${s}</span>`).join("");
+  document.querySelectorAll("#srcchips .chip").forEach(c=>{
+    c.onclick=()=>{
+      const s=c.dataset.s;
+      selectedSources = selectedSources.includes(s) ? selectedSources.filter(x=>x!==s) : [...selectedSources,s];
+      store.set("sources",JSON.stringify(selectedSources));
+      render();
+    };
+  });
+
+  document.getElementById("customsrcchips").innerHTML = customSources.length
+    ? customSources.map(s=>`<span class="chip on" data-s="${s}" title="クリックで削除">${s} ×</span>`).join("")
+    : `<span class="hint" style="margin:0">まだ追加されていません</span>`;
+  document.querySelectorAll("#customsrcchips .chip").forEach(c=>{
+    c.onclick=()=>{
+      customSources = customSources.filter(x=>x!==c.dataset.s);
+      store.set("customSources",JSON.stringify(customSources));
+      render();
+    };
+  });
+
+  document.getElementById("favchips").innerHTML = favorites.length
+    ? favorites.map(n=>`<span class="chip on" data-n="${n}" title="クリックで解除">★ ${n}</span>`).join("")
+    : `<span class="hint" style="margin:0">まだありません。各曜日カードの☆から追加できます。</span>`;
+  document.querySelectorAll("#favchips .chip").forEach(c=>{
+    c.onclick=()=>{
+      favorites = favorites.filter(x=>x!==c.dataset.n);
+      store.set("favorites",JSON.stringify(favorites));
+      render();
+    };
+  });
+}
+
+document.getElementById("gen").onclick=build;
+document.getElementById("add").onclick=()=>{
+  const i=document.getElementById("newitem");
+  const v=i.value.trim();
+  if(!v) return;
+  if(!pantry.includes(v)) pantry.push(v);
+  store.set("pantry",JSON.stringify(pantry));
+  i.value=""; render();
+};
+document.getElementById("newitem").addEventListener("keydown",e=>{ if(e.key==="Enter") document.getElementById("add").click(); });
+
+document.getElementById("boughtadd").onclick=()=>{
+  const i=document.getElementById("boughtinput");
+  const items=i.value.split(/[,、\n]/).map(s=>s.trim()).filter(Boolean);
+  items.forEach(v=>{ if(!boughtFood.includes(v)) boughtFood.push(v); });
+  store.set("bought",JSON.stringify(boughtFood));
+  i.value=""; render();
+};
+document.getElementById("boughtinput").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); document.getElementById("boughtadd").click(); } });
+
+document.getElementById("srcadd").onclick=()=>{
+  const i=document.getElementById("srcinput");
+  const v=i.value.trim();
+  if(!v || DEFAULT_SOURCES.includes(v) || customSources.includes(v)) { i.value=""; return; }
+  customSources.push(v);
+  store.set("customSources",JSON.stringify(customSources));
+  i.value=""; render();
+};
+document.getElementById("srcinput").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); document.getElementById("srcadd").click(); } });
+
+render();
+</script>
+</body>
+</html>
